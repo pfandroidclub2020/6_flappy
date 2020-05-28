@@ -3,6 +3,7 @@ package net.pilsfree.flappy
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.math.Vector3
 import ktx.app.KtxScreen
 import ktx.graphics.use
@@ -11,6 +12,10 @@ class MenuScreen(val game: FlappyGame) : KtxScreen {
     val button by lazy { Texture("playbtn.png") }
     val camera = OrthographicCamera().also {
         it.setToOrtho(false,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
+    }
+
+    val flappySize = GlyphLayout().also {
+        it.setText(game.font,"Flappy Bird")
     }
 
 
@@ -23,6 +28,7 @@ class MenuScreen(val game: FlappyGame) : KtxScreen {
         game.batch.projectionMatrix = camera.combined
         game.batch.use {
             it.draw(game.bg,0f,0f,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
+            game.font.draw(it,"Flappy Bird",Consts.WIDTH/2f-flappySize.width/2,Consts.HEIGHT/2f+100)
             it.draw(button,Consts.WIDTH/2f-button.width/2f,Consts.HEIGHT/2f-button.height/2f)
         }
 
