@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import ktx.app.KtxScreen
 import ktx.graphics.use
 import net.pilsfree.flappy.sprites.Bird
+import net.pilsfree.flappy.sprites.Tubes
 
 class GameScreen(val game: FlappyGame) : KtxScreen {
 
@@ -12,21 +13,26 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
     val camera = OrthographicCamera().also {
         it.setToOrtho(false,Consts.WIDTH.toFloat()/2f,Consts.HEIGHT.toFloat()/2f)
     }
+    val tubes = Tubes()
 
     override fun show() {
         game.music.volume = 0.05f
     }
 
     override fun render(delta: Float) {
-        camera.update()
         bird.update(delta)
+        camera.position.x = bird.position.x + 80
+        camera.update()
+        tubes.update(camera)
+
         game.batch.projectionMatrix = camera.combined
         game.batch.use {
-            it.draw(game.bg,0f,0f,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
-            it.draw(bird.texture,bird.position.x,bird.position.y)
+            it.draw(game.bg,camera.position.x-camera.viewportWidth/2,0f,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
+            tubes.render(it)
+            bird.render(it)
         }
 
-        if (bird.position.y < 0f) {
+        if (bird.position.y < 0f || bird.position.y > camera.viewportHeight || tubes.collides(bird.rectangle())) {
             die()
         }
 
@@ -46,5 +52,6 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
     override fun dispose() {
         super.dispose()
         bird.dispose()
+        tubes.dispose()
     }
 }
