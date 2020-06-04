@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import ktx.app.KtxScreen
 import ktx.graphics.use
+import net.pilsfree.flappy.sprites.BG
 import net.pilsfree.flappy.sprites.Bird
 import net.pilsfree.flappy.sprites.Ground
 import net.pilsfree.flappy.sprites.Tubes
@@ -19,6 +20,7 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
     val ground = Ground()
     var lastScore = 0
     val sfxScore = Gdx.audio.newSound(Gdx.files.internal("score.mp3"))
+    val bg = BG(game.bg)
 
 
 
@@ -32,6 +34,8 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
         camera.update()
         tubes.update(camera)
         ground.update(camera)
+        bg.update(camera)
+
         val newScore = tubes.score(bird.position.x+bird.texture.width/2)
         if (newScore > lastScore) {
             lastScore = newScore
@@ -44,7 +48,7 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
 
         game.batch.projectionMatrix = camera.combined
         game.batch.use {
-            it.draw(game.bg,camera.position.x-camera.viewportWidth/2,0f,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
+            bg.render(it)
             tubes.render(it)
             ground.render(it)
             bird.render(it)

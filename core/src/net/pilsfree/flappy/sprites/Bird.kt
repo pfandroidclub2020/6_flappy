@@ -23,6 +23,9 @@ class Bird(x: Float,y:Float) {
             TextureRegion(animation,animation.width/3*2,0,animation.width/3,animation.height)
     )
 
+    val deathTexture by lazy { Texture("birddeath.png") }
+    val deathTextureRegion by lazy { TextureRegion(deathTexture) }
+
     val sfxWing = Gdx.audio.newSound(Gdx.files.internal("sfx_wing.ogg"))
 
     val position = Vector2(x,y)
@@ -70,7 +73,7 @@ class Bird(x: Float,y:Float) {
     }
 
     fun render(spriteBatch: SpriteBatch) {
-        val sprite = frames[currentFrame]
+        val sprite = if (isDead) deathTextureRegion else frames[currentFrame]
         var angle = velocity.angle()
         if (angle>180) angle -= 360
         angle /= 3f
