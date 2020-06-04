@@ -31,20 +31,28 @@ class Bird(x: Float,y:Float) {
     var currentFrame = 0
     var currentFrameTime = 0f
 
+    var isDead = false
+
     fun update(dt:Float) {
-        currentFrameTime += dt
-        if (currentFrameTime > FRAME_LENGTH) {
-            currentFrame++
-            currentFrameTime -= FRAME_LENGTH
-        }
-        if (currentFrame>=frames.size) {
-            currentFrame = 0
+        if (!isDead) {
+            currentFrameTime += dt
+            if (currentFrameTime > FRAME_LENGTH) {
+                currentFrame++
+                currentFrameTime -= FRAME_LENGTH
+            }
+            if (currentFrame >= frames.size) {
+                currentFrame = 0
+            }
         }
 
         velocity.add(0f, GRAVITY)
         velocity.scl(dt)
         position.add(velocity)
         velocity.scl(1f/dt)
+
+        if (position.y < Ground.BOTTOM) {
+            position.y = Ground.BOTTOM.toFloat()
+        }
     }
 
     fun jump() {
@@ -62,6 +70,11 @@ class Bird(x: Float,y:Float) {
     }
 
     fun render(spriteBatch: SpriteBatch) {
-        spriteBatch.draw(frames[currentFrame],position.x,position.y)
+        val sprite = frames[currentFrame]
+        var angle = velocity.angle()
+        if (angle>180) angle -= 360
+        angle /= 3f
+        spriteBatch.draw(sprite,position.x,position.y,sprite.regionWidth/2f,sprite.regionHeight/2f,
+                sprite.regionWidth.toFloat(),sprite.regionHeight.toFloat(),1f,1f,angle)
     }
 }

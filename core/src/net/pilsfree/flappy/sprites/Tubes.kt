@@ -66,4 +66,7 @@ class Tubes {
         textureTop.dispose()
     }
 
+    fun score(xpos:Float) : Int = ((xpos + FIRST_TUBE + WIDTH/2)/(SPACING+ WIDTH))
+            .let { Math.floor(it.toDouble()).toInt() } - 1
+
 }

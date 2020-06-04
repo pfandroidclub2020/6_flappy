@@ -16,6 +16,7 @@ class FlappyGame : KtxGame<KtxScreen>() {
             it.setUseIntegerPositions(false)
         }
     }
+    val preferences by lazy { Gdx.app.getPreferences("data") }
     val bg by lazy { Texture("bg.png") }
     lateinit var sfxDead : Sound
     lateinit var music : Music

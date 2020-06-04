@@ -2,9 +2,11 @@ package net.pilsfree.flappy
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import ktx.app.KtxScreen
 import ktx.graphics.use
 import net.pilsfree.flappy.sprites.Bird
+import net.pilsfree.flappy.sprites.Ground
 import net.pilsfree.flappy.sprites.Tubes
 
 class GameScreen(val game: FlappyGame) : KtxScreen {
@@ -14,6 +16,11 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
         it.setToOrtho(false,Consts.WIDTH.toFloat()/2f,Consts.HEIGHT.toFloat()/2f)
     }
     val tubes = Tubes()
+    val ground = Ground()
+    var lastScore = 0
+    val sfxScore = Gdx.audio.newSound(Gdx.files.internal("score.mp3"))
+
+
 
     override fun show() {
         game.music.volume = 0.05f
@@ -24,25 +31,56 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
         camera.position.x = bird.position.x + 80
         camera.update()
         tubes.update(camera)
+        ground.update(camera)
+        val newScore = tubes.score(bird.position.x+bird.texture.width/2)
+        if (newScore > lastScore) {
+            lastScore = newScore
+            sfxScore.play()
+        }
+        val scoreSize = GlyphLayout().also {
+            it.setText(game.font,newScore.toString())
+        }
+
 
         game.batch.projectionMatrix = camera.combined
         game.batch.use {
             it.draw(game.bg,camera.position.x-camera.viewportWidth/2,0f,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
             tubes.render(it)
+            ground.render(it)
             bird.render(it)
+            game.font.draw(it,newScore.toString(),camera.position.x-scoreSize.width/2,
+                    camera.viewportHeight - 30 - scoreSize.height)
+
         }
 
-        if (bird.position.y < 0f || bird.position.y > camera.viewportHeight || tubes.collides(bird.rectangle())) {
-            die()
+        if (bird.position.y <= Ground.BOTTOM || bird.position.y > camera.viewportHeight || tubes.collides(bird.rectangle())) {
+            if (!bird.isDead)  {
+                die()
+                val savedScore = game.preferences.getInteger(Consts.HIGHSCORE_KEY,Consts.HIGHSCORE_DEFAULT)
+                if (savedScore < newScore) {
+                    game.preferences.putInteger(Consts.HIGHSCORE_KEY,newScore)
+                    game.preferences.flush()
+                }
+            }
         }
 
         if (Gdx.input.justTouched()) {
-            bird.jump()
+            if (bird.isDead) {
+                backToMenu()
+            } else {
+                bird.jump()
+            }
         }
     }
 
     private fun die() {
         game.sfxDead.play()
+        bird.velocity.x = 0f
+        bird.velocity.y = 0f
+        bird.isDead = true
+    }
+
+    private fun backToMenu() {
         game.addScreen(MenuScreen(game))
         game.setScreen<MenuScreen>()
         game.removeScreen<GameScreen>()
@@ -53,5 +91,7 @@ class GameScreen(val game: FlappyGame) : KtxScreen {
         super.dispose()
         bird.dispose()
         tubes.dispose()
+        sfxScore.dispose()
+        ground.dispose()
     }
 }

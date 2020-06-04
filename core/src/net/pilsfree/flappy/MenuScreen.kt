@@ -18,6 +18,12 @@ class MenuScreen(val game: FlappyGame) : KtxScreen {
         it.setText(game.font,"Flappy Bird")
     }
 
+    val highText = "HIGH: " + game.preferences.getInteger(Consts.HIGHSCORE_KEY,Consts.HIGHSCORE_DEFAULT)
+
+    val highSize = GlyphLayout().also {
+        it.setText(game.font,highText)
+    }
+
 
     override fun show() {
         game.music.volume = 0.5f
@@ -28,8 +34,9 @@ class MenuScreen(val game: FlappyGame) : KtxScreen {
         game.batch.projectionMatrix = camera.combined
         game.batch.use {
             it.draw(game.bg,0f,0f,Consts.WIDTH.toFloat(),Consts.HEIGHT.toFloat())
-            game.font.draw(it,"Flappy Bird",Consts.WIDTH/2f-flappySize.width/2,Consts.HEIGHT/2f+100)
+            game.font.draw(it,"Flappy Bird",Consts.WIDTH/2f-flappySize.width/2,Consts.HEIGHT/2f+200)
             it.draw(button,Consts.WIDTH/2f-button.width/2f,Consts.HEIGHT/2f-button.height/2f)
+            game.font.draw(it,highText, Consts.WIDTH/2f-highSize.width/2f,Consts.HEIGHT/2f + 100f)
         }
 
         if (Gdx.input.justTouched()) {
